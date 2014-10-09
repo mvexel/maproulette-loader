@@ -58,6 +58,10 @@ def get_tasks_from_db(args):
     if not args.database:
         db_name = 'osm'
 
+    db_schema = args.schema
+    if not args.schema:
+        db_schema = 'osmosis'
+
     db_pass = args.password
     if not args.password:
         db_pass = getpass.getpass('please enter the password for database {dbname} and user {dbuser}: '.format(dbname=db_name, dbuser=db_user))
@@ -75,7 +79,9 @@ def get_tasks_from_db(args):
     # open a connection, get a cursor
     conn = psycopg2.connect(db_string)
     cur = conn.cursor(cursor_factory=DictCursor)
-    register_hstore(cur)
+    if db_schema == 'osmosis':
+        # hstore is only default in osmosis schema
+        register_hstore(cur)
     # get our results
     cur.execute(db_query)
     nodes = cur.fetchall()
@@ -404,7 +410,7 @@ if __name__ == "__main__":
                         action='store_true',
                         help='Make only synchronous requests')
 
-    subparsers = parser.add_subparsers(help='Specify the source of the tasks')
+    subparsers = parser.add_subparsers(help='Specify the source of the tasks', dest='use')
 
     # create the parser for the "db" command
     parser_db = subparsers.add_parser('use-db',
@@ -414,6 +420,9 @@ if __name__ == "__main__":
     parser_db.add_argument('--database',
                            help='name of the database. \
                            Defaults to osm')
+    parser_db.add_argument('--schema',
+                           help='Database schema. \
+                           Defaults to osmosis. Can also be osm2pgsql.')
     parser_db.add_argument('--user',
                            help='database user. Defaults to the current user')
     parser_db.add_argument('--password',
@@ -476,11 +485,12 @@ if __name__ == "__main__":
         statuses = get_current_task_statuses(slug)
 
     tasks = []
+
     if 'query' in args:
-        if 'use-db' in args:
+        if args.use == 'use-db':
             print 'getting tasks from database'
             tasks = get_tasks_from_db(args)
-        elif 'use-overpass' in args:
+        elif args.use == 'use-overpass':
             print 'getting tasks from overpass'
             tasks = get_tasks_from_overpass(args)
 
