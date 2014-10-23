@@ -344,10 +344,7 @@ if __name__ == "__main__":
     requests_log.propagate = True
 
     # arguments schmarguments
-    help_text = 'This script creates a challenge and populates it with tasks \
-        from an OSM database or a prepared JSON file with features. \
-        Try it with the following command:\
-        python loader.py --server dev.maproulette.org --port 80 test1 use-json example.json'
+    help_text = 'This script creates a challenge and populates it with tasks from an OSM database or a prepared JSON file with features. \ Currently, only challenges that have a single point as the geometry for the tasks are supported. Try it with the following command: python loader.py --server dev.maproulette.org --port 80 test1 use-json example.json'
 
     parser = argparse.ArgumentParser(description=help_text)
     parser.add_argument('challenge_slug',
