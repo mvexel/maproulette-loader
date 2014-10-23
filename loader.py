@@ -345,10 +345,9 @@ if __name__ == "__main__":
 
     # arguments schmarguments
     help_text = 'This script creates a challenge and populates it with tasks \
-        from an osmosis schema OSM database or a JSON file with features. \
-        \n\
-        Run this with the following command:\n\
-        python process.py --server <your_server> test1 use-json example.json'
+        from an OSM database or a prepared JSON file with features. \
+        Try it with the following command:\
+        python loader.py --server dev.maproulette.org --port 80 test1 use-json example.json'
 
     parser = argparse.ArgumentParser(description=help_text)
     parser.add_argument('challenge_slug',
@@ -360,11 +359,15 @@ if __name__ == "__main__":
     parser.add_argument('--instruction', dest='challenge_instruction',
                         help='MapRoulette challenge-wide instructions.')
     parser.add_argument('--server',
-                        default='http://localhost:5000/',
+                        default='localhost',
                         help='the MapRoulette server instance to talk to, \
-                        for example http://maproulette.org/. \
-                        Defaults to http://localhost:5000/. \
+                        for example dev.maproulette.org. \
+                        Defaults to localhost. \
                         Must have a trailing slash!')
+    parser.add_argument('--port',
+                        default='80',
+                        help='the MapRoulette server port to talk to. \
+                        Defaults to 80.')
     parser.add_argument('--dry',
                         default=False,
                         action='store_true',
@@ -452,11 +455,9 @@ if __name__ == "__main__":
 
     slug = args.challenge_slug
 
-    if not args.server.endswith('/'):
-        raise ValueError('Server name must have a trailing slash')
-
     # the MapROulette API endpoints
-    base = args.server + "api/"
+
+    base = "http://{server}:{port}/api/".format(server=args.server, port=args.port)
     # - for getting a challenge
     mr_api_getchallenge_endpoint = base + "challenge/{slug}"
     # - for creating a challenge
@@ -561,4 +562,4 @@ if __name__ == "__main__":
 
         write_responses(responses, args.output)
 
-    print '\ndone.'
+    print '\ndone. Check out your challenge at http://{server}:{port}/#t={slug}'.format(server=args.server, port=args.port, slug=args.challenge_slug)
