@@ -107,9 +107,8 @@ def get_tasks_from_db(args):
 
 
 def get_tasks_from_overpass(args):
-    api = Overpass.API()
-    result = api.Get(args.query)
-    print result
+    overpass_api = Overpass.API()
+    result = overpass_api.Get(args.query, asGeoJSON=True)
     # FIXME finish me!
 
 
@@ -430,6 +429,12 @@ if __name__ == "__main__":
     parser_db.add_argument('--host',
                            help='database host. Defaults to localhost')
 
+    # create the parser for the "db" command
+    parser_db = subparsers.add_parser('use-overpass',
+                                      help='use an overpass query as the source')
+    parser_db.add_argument('query',
+                           help='the overpass QL query to use')
+
     # create the parser for the "json" command
     parser_json = subparsers.add_parser('use-json', help='JSON help')
     parser_json.add_argument('json_file',
@@ -491,7 +496,7 @@ if __name__ == "__main__":
             print 'getting tasks from database'
             tasks = get_tasks_from_db(args)
         elif args.use == 'use-overpass':
-            print 'getting tasks from overpass'
+            print 'getting tasks from overpass with query {q}'.format(q=args.query)
             tasks = get_tasks_from_overpass(args)
 
     if 'json_file' in args:
